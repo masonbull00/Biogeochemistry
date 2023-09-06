@@ -4,11 +4,13 @@ library(tidyverse)
 library(ggplot2)
 library(ggtext)
 
+#load in the original dust data we were provided
 dust_dataHW1 <- read.csv("C:/Users/mason/OneDrive/Desktop/BSU/Classes/BioGeoChem/dust_dataHW1.csv", header=TRUE)
 View(dust_dataHW1)
 
 #assuming that water has a density of 1kg/L, (1,000,000mg/L) the dimensional analysis of converting concentrations to flux is 
 # [P or Ca]mg/L * 1L/1,000,000mg * flux g/m^2/yr = flux[P or Ca]g/m^2/yr
+#I performed these calculations and created a new column with the created data
 dust_dataHW1$P_flux <- dust_dataHW1$P_conc/1000000*dust_dataHW1$flux_gm2yr
 dust_dataHW1$Ca_flux <- dust_dataHW1$Ca_conc/1000000*dust_dataHW1$flux_gm2yr
 
@@ -29,4 +31,6 @@ datDustLong %>% ggplot(aes(y=flux_value, x=Ecosystem, color = Season, group=inte
        caption = caption) +
   theme_bw()+theme(plot.caption = element_markdown(hjust = 0.5))
   scale_linetype_discrete(labels=c("Ca Flux", "P Flux"))
+
+#save the plot out as a pdf
 ggsave(filename= "C:\\Users\\mason\\OneDrive\\Desktop\\BSU\\Classes\\BioGeoChem\\Homework1\\homework1plot.pdf")
