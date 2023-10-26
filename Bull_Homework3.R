@@ -27,26 +27,30 @@ datFilter <- datIncubation3 %>% mutate(ErrElem = case_when(Error == "Error" ~ "D
 
 #order the data
 datFilter$ElementOrder <- factor(datFilter$Element, levels = c("DOC_mgL.1", "Sulfate_uM", "Fe_uM", "Mn_uM"), ordered = TRUE)
+datFilter <- datFilter %>% mutate(cycleOrder = case_when(State == "Anoxic" & Cycle == "0" ~ "a",
+                                            State == "Oxic" & Cycle == "0" ~ "b",
+                                            State == "Anoxic" & Cycle == "1" ~ "c",
+                                            State == "Oxic" & Cycle == "1" ~ "d",
+                                            State == "Anoxic" & Cycle == "2" ~ "e",
+                                            State == "Oxic" & Cycle == "2" ~ "f",
+                                            State == "Anoxic" & Cycle == "3" ~ "g",
+                                            State == "Oxic" & Cycle == "3" ~ "h"))
 
 #create plotting labels
 elementLabs <- c("DOC (mg/L)", "Sulfate (uM)", "Fe (uM)", "Mn (uM)")
 names(elementLabs) <- c(unique(datFilter$ElementOrder))
 
 #create the plots of anoxic and oxic separately, as the values of each are so different so that its easier to visualize
-pAnoxic <- datFilter %>% ggplot(aes(x = Cycle, y = ConVal)) + 
-  geom_point(data = subset(datFilter, State == 'Anoxic')) + 
-  facet_wrap(~ElementOrder, scales = 'free_y', labeller = labeller(ElementOrder = elementLabs)) +
-  geom_errorbar(data = subset(datFilter, State =='Anoxic'), aes(ymin = ConVal - ErrorVal, ymax = ConVal + ErrorVal), width = 0.1) +
-  labs(x = ' ' , y = ' ') + theme_bw() 
+Figure <- datFilter %>% ggplot(aes(x = cycleOrder, y = ConVal)) + 
+  geom_point(aes(shape = State, color = State), size = 2.4) + 
+  facet_wrap(~ElementOrder, scales = 'free_y', labeller = labeller(ElementOrder = elementLabs), strip.position = "left") +
+  geom_errorbar(aes(ymin = ConVal - ErrorVal, ymax = ConVal + ErrorVal), width = 0.1) +
+  scale_x_discrete(labels = c('0', '0', '1', '1', 
+                              '2', '2', '3', '3')) +
+  labs(x = ' ' , y = ' ') + theme_bw() + 
+  theme(strip.placement = "outside")
   
 #save out the image of the plot
-ggsave(filename = "C:/Users/mason/OneDrive/Desktop/BSU/Classes/BioGeoChem/homework3/incubation_data_HW3/Anoxic.png", plot = pAnoxic, width = 5, height = 3.1)
+ggsave(filename = "C:/Users/mason/OneDrive/Desktop/BSU/Classes/BioGeoChem/homework3/incubation_data_HW3/Figure.png", height = 4.7, width = 8.5)
 
 
-pOxic <- datFilter %>% ggplot(aes(x = Cycle, y = ConVal)) + 
-  geom_point(data = subset(datFilter, State == 'Oxic')) + 
-  facet_wrap(~ElementOrder, scales = 'free_y', labeller = labeller(ElementOrder = elementLabs)) +
-  geom_errorbar(data = subset(datFilter, State =='Oxic'), aes(ymin = ConVal - ErrorVal, ymax = ConVal + ErrorVal), width = 0.1) +
-  labs(x = ' ' , y = ' ') + theme_bw()
-
-ggsave(filename = "C:/Users/mason/OneDrive/Desktop/BSU/Classes/BioGeoChem/homework3/incubation_data_HW3/Oxic.png", plot = pOxic, width = 5, height = 3.1)
